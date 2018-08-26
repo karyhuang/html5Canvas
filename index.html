@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML5 Canvas</title>
+</head>
+<body>
+<canvas id="draw" width="800" height="800"></canvas>
+<script>
+  const canvas = document.querySelector('#draw');
+  const ctx = canvas.getContext('2d');
+
+  // canvas is by default 800 x 800 
+  // let's set it to match our window's actual H and W
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // the color of your drawings
+  ctx.strokeStyle = '#ffffff';
+  // end of the end should be round
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.lineWidth = 30;
+
+  let isDrawing = false;
+  // define starting points for your drawing
+  let lastX = 0;
+  let lastY = 0;
+  // set starting color
+  let hue = 0;
+  // we want lineWidth to stop at a certain max point
+  let direction = true;
+
+  function draw(e) {
+    // stop the function from running when they are not moused down
+    if(!isDrawing) return; 
+    console.log(e);
+
+    // set initial stroke color
+    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+    // set line width same as hue so it can increase as well
+    // begin drawing
+    ctx.beginPath();
+    // start from
+    ctx.moveTo(lastX, lastY);
+    // go to
+    ctx.lineTo(e.offsetX, e.offsetY);
+    // draw
+    ctx.stroke();
+    // update starting points
+    lastX = e.offsetX;
+    lastY = e.offsetY;
+
+    // update stroke color
+    hue++;
+    // since hue only goes from 0 to 360
+    // reset hue to 0 when it reaches the end
+    if (hue >= 360) {
+      hue = 0;
+    }
+
+    // set line width max to 100 and min to 1
+    // when the line width reaches its max/min point, flip the direction
+    if (ctx.lineWidth >= 100 || ctx.lineWidth <= 1) {
+      direction = !direction;
+    }
+    // if direction = true, increment line width
+    if (direction) {
+      ctx.lineWidth++;
+    }
+    // vice versa
+    else ctx.lineWidth--;
+  }
+
+  
+  canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    // update starting points before mousemove
+    // ES6 Trick to set both variables on the same line
+    [lastX, lastY] = [e.offsetX, e.offsetY]
+  });
+  canvas.addEventListener('mousemove', draw);  
+  canvas.addEventListener('mouseup', () => isDrawing = false);
+  // stop the drawing when the mouse is moved out of the canvas
+  canvas.addEventListener('mouseout', () => isDrawing = false);
+
+</script>
+
+<style>
+  html, body {
+    margin:0;
+  }
+  canvas {
+    background-color: pink;
+  }
+</style>
+
+</body>
+</html>
